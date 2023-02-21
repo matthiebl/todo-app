@@ -30,11 +30,24 @@ export const TodoListsPage: React.FC<TodoListsPageProps> = ({}) => {
                     <div className='w-full truncate pr-4 sm:w-8/12'>Lists</div>
                     <div className='hidden w-3/12 truncate text-right sm:block'>Last Updated</div>
                 </div>
-                <a href='#/todo' className='flex h-10 items-center border-b border-gray-100 px-8 text-sm'>
-                    <div className='w-full truncate pr-4 sm:w-8/12'>List title</div>
-                    <div className='hidden w-3/12 truncate text-right text-gray-400 sm:block'>February 22, 2023</div>
-                    <div className='hidden w-1/12 truncate text-right text-indigo-600 sm:block'>Edit</div>
-                </a>
+                <TodoListItem
+                    id='todo'
+                    color='bg-indigo-600'
+                    title='This is a list title'
+                    lastEdit='February 22, 2023'
+                />
+                <TodoListItem
+                    id='todo'
+                    color='bg-indigo-600'
+                    title='This is a list title'
+                    lastEdit='February 22, 2023'
+                />
+                <TodoListItem
+                    id='todo'
+                    color='bg-indigo-600'
+                    title='This is a list title'
+                    lastEdit='February 22, 2023'
+                />
             </main>
         </PageWrapper>
     )
@@ -52,6 +65,26 @@ const RecentList: React.FC<RecentListProps> = ({ color, title }) => {
             <div className='w-full overflow-hidden py-2 px-4'>
                 <p className='truncate'>{title}</p>
             </div>
+        </a>
+    )
+}
+
+interface TodoListItemProps {
+    id: string
+    color: string
+    title: string
+    lastEdit: string
+}
+
+const TodoListItem: React.FC<TodoListItemProps> = ({ id, color, title, lastEdit }) => {
+    return (
+        <a href={'#/' + id} className='flex h-10 items-center border-b border-gray-100 px-8 text-sm'>
+            <div className='flex w-full items-center gap-3 truncate pr-4 sm:w-8/12'>
+                <div className={'h-2.5 w-2.5 rounded-full ' + color} />
+                {title}
+            </div>
+            <div className='hidden w-3/12 truncate text-right text-gray-400 sm:block'>{lastEdit}</div>
+            <div className='hidden w-1/12 truncate text-right text-indigo-600 sm:block'>Edit</div>
         </a>
     )
 }
