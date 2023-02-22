@@ -1,13 +1,8 @@
 import React from 'react'
-
-import {
-    browserLocalPersistence,
-    createUserWithEmailAndPassword,
-    setPersistence,
-    signInWithEmailAndPassword,
-} from 'firebase/auth'
-import { auth } from '../api/firebase'
 import { useNavigate } from 'react-router-dom'
+
+import { auth } from '../api/firebase'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 
 interface LoginPageProps {
     register?: boolean
@@ -22,10 +17,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ register = false }) => {
     const [error, setError] = React.useState('')
 
     const onSignIn = () => {
-        setPersistence(auth, browserLocalPersistence)
-            .then(() => {
-                return signInWithEmailAndPassword(auth, email, password)
-            })
+        signInWithEmailAndPassword(auth, email, password)
             .then(credentials => {
                 navigate('/')
             })

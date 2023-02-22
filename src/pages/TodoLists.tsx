@@ -1,6 +1,9 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+
 import { auth } from '../api/firebase'
+import { onAuthStateChanged } from 'firebase/auth'
+
 import { PageWrapper } from '../components'
 
 interface TodoListsPageProps {}
@@ -9,9 +12,11 @@ export const TodoListsPage: React.FC<TodoListsPageProps> = ({}) => {
     const navigate = useNavigate()
 
     React.useEffect(() => {
-        if (!auth.currentUser) {
-            navigate('/login')
-        }
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                navigate('/login')
+            }
+        })
     }, [])
 
     return (
