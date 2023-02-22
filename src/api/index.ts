@@ -4,14 +4,14 @@ import { database } from './firebase'
 export const createList = (
     uid: string,
     title: string,
-    tag: string,
+    color: string,
     callback: (ref: DocumentReference<DocumentData>) => any
 ) => {
     const currentTime = serverTimestamp()
     addDoc(collection(database, 'lists'), {
         uid,
         title,
-        tags: [tag],
+        color,
         items: [],
         createdAt: currentTime,
         editedAt: currentTime,

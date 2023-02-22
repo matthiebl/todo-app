@@ -5,6 +5,7 @@ import { auth } from '../api/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 
 import { PageWrapper } from '../components'
+import { createList } from '../api'
 
 interface TodoListsPageProps {}
 
@@ -29,7 +30,7 @@ export const TodoListsPage: React.FC<TodoListsPageProps> = ({}) => {
                     <h2 className='text-2xl'>Todo Lists</h2>
                     <div className='flex gap-2'>
                         <button
-                            className='rounded-lg bg-indigo-600 py-2 px-4 text-white hover:bg-indigo-700'
+                            className='rounded-lg bg-indigo-600 py-1.5 px-4 text-white hover:bg-indigo-700'
                             onClick={() => setOpen(true)}
                         >
                             Create
@@ -88,6 +89,9 @@ interface ModalProps {
 }
 
 const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
+    const navigate = useNavigate()
+
+    const [creating, setCreating] = React.useState(false)
     const [title, setTitle] = React.useState('')
     const [tag, setTag] = React.useState('')
     const onChangeTag = (value: string) => setTag(value)
@@ -103,7 +107,7 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
             }}
         >
             <div
-                className='z-50 h-full w-full bg-white px-8 py-4 sm:h-fit sm:max-w-xl sm:rounded-lg sm:border sm:border-gray-200 sm:shadow-lg'
+                className='z-50 h-full w-full bg-white px-8 py-6 sm:h-fit sm:max-w-xl sm:rounded-lg sm:border sm:border-gray-200 sm:shadow-lg'
                 onClick={event => event.stopPropagation()}
             >
                 <div className='flex w-full justify-between'>
@@ -194,6 +198,51 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
                             Pink
                         </button>
                     </div>
+                </div>
+
+                <div className='mt-6 flex flex-row-reverse gap-2'>
+                    <button
+                        disabled={title === '' || tag === '' || auth.currentUser === null || creating}
+                        className='flex items-center justify-center rounded-lg bg-indigo-600 py-1.5 px-4 text-white hover:bg-indigo-700 disabled:bg-gray-400'
+                        onClick={() => {
+                            if (title === '' || tag === '' || auth.currentUser === null) return
+                            setCreating(true)
+                            createList(auth.currentUser.uid, title, tag, ref => {
+                                setCreating(false)
+                                navigate(`/todo/${ref.id}`)
+                            })
+                        }}
+                    >
+                        {creating && (
+                            <svg
+                                className='-ml-0.5 mr-2 h-5 w-5 animate-spin text-white'
+                                xmlns='http://www.w3.org/2000/svg'
+                                fill='none'
+                                viewBox='0 0 24 24'
+                            >
+                                <circle
+                                    className='opacity-25'
+                                    cx='12'
+                                    cy='12'
+                                    r='10'
+                                    stroke='currentColor'
+                                    strokeWidth='4'
+                                ></circle>
+                                <path
+                                    className='opacity-75'
+                                    fill='currentColor'
+                                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                                ></path>
+                            </svg>
+                        )}
+                        Create
+                    </button>
+                    <button
+                        className='ourline:gray-400 rounded-lg py-1.5 px-4 text-gray-600 outline outline-1 -outline-offset-1 hover:text-gray-500'
+                        onClick={() => setOpen(false)}
+                    >
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>
