@@ -1,6 +1,11 @@
 import React from 'react'
 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import {
+    browserLocalPersistence,
+    createUserWithEmailAndPassword,
+    setPersistence,
+    signInWithEmailAndPassword,
+} from 'firebase/auth'
 import { auth } from '../api/firebase'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,9 +22,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ register = false }) => {
     const [error, setError] = React.useState('')
 
     const onSignIn = () => {
-        signInWithEmailAndPassword(auth, email, password)
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => {
+                return signInWithEmailAndPassword(auth, email, password)
+            })
             .then(credentials => {
-                console.log(credentials.user)
+                navigate('/')
             })
             .catch(error => {
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
@@ -33,7 +41,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ register = false }) => {
     const onRegister = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(credentials => {
-                console.log(credentials.user)
+                navigate('/')
             })
             .catch(error => {
                 if (error.code === 'auth/email-already-in-use') {

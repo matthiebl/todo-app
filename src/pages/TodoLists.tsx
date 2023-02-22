@@ -1,9 +1,19 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { auth } from '../api/firebase'
 import { PageWrapper } from '../components'
 
 interface TodoListsPageProps {}
 
 export const TodoListsPage: React.FC<TodoListsPageProps> = ({}) => {
+    const navigate = useNavigate()
+
+    React.useEffect(() => {
+        if (!auth.currentUser) {
+            navigate('/login')
+        }
+    }, [])
+
     return (
         <PageWrapper>
             <main className='h-full w-full max-w-5xl overflow-y-auto'>
