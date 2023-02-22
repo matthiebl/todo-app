@@ -1,4 +1,16 @@
-import { addDoc, collection, DocumentData, DocumentReference, serverTimestamp } from 'firebase/firestore'
+import {
+    addDoc,
+    collection,
+    doc,
+    DocumentData,
+    DocumentReference,
+    getDoc,
+    getDocs,
+    orderBy,
+    query,
+    serverTimestamp,
+    where,
+} from 'firebase/firestore'
 import { database } from './firebase'
 
 export const createList = (
@@ -22,4 +34,24 @@ export const createList = (
         .catch(error => {
             console.log(error)
         })
+}
+
+export const getList = (id: string, callback: (list: DocumentData) => any) => {
+    getDoc(doc(database, 'lists', id)).then(data => {
+        if (data.exists()) callback(data.data())
+    })
+}
+
+export const getLists = (uid: string | null | undefined, callback: (lists: DocumentData[]) => any) => {
+    if (!uid) return
+    getDocs(query(collection(database, 'lists'), where('uid', '==', uid), orderBy('editedAt', 'desc'))).then(data => {
+        let lists: DocumentData[] = []
+        if (data)
+            data.forEach(doc => {
+                let list = doc.data()
+                list.id = doc.id
+                lists.push(list)
+            })
+        callback(lists)
+    })
 }

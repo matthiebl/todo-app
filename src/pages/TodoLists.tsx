@@ -1,15 +1,17 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { auth } from '../api/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
-
-import { PageWrapper } from '../components'
+import { DocumentData } from 'firebase/firestore'
+import { auth } from '../api/firebase'
 import { createList } from '../api'
+import { PageWrapper } from '../components'
 
-interface TodoListsPageProps {}
+interface TodoListsPageProps {
+    lists: { loading: boolean; value: DocumentData[] }
+}
 
-export const TodoListsPage: React.FC<TodoListsPageProps> = ({}) => {
+export const TodoListsPage: React.FC<TodoListsPageProps> = ({ lists }) => {
     const navigate = useNavigate()
 
     React.useEffect(() => {
@@ -40,44 +42,55 @@ export const TodoListsPage: React.FC<TodoListsPageProps> = ({}) => {
 
                 <div className='border-t border-gray-200' />
 
-                <div className='py-4 px-8 pb-3'>
-                    <h4 className='mb-2'>Recent Lists</h4>
+                {!lists.loading && lists.value.length > 0 && (
+                    <div className='py-4 px-8 pb-3'>
+                        <h4 className='mb-2'>Recent Lists</h4>
 
-                    <div className='flex w-full items-center gap-6 overflow-y-auto pb-3'>
-                        <RecentList color='bg-indigo-600' title='Shopping List' />
+                        <div className='flex w-full items-center gap-6 overflow-y-auto pb-3'>
+                            {lists.value.slice(0, 4).map(list => (
+                                <RecentList
+                                    key={list.id + 'Recent'}
+                                    id={list.id}
+                                    color={list.color}
+                                    title={list.title}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className='flex h-10 items-center border-y border-gray-200 bg-gray-100 px-8 text-sm font-semibold'>
                     <div className='w-full truncate pr-4 sm:w-8/12'>Lists</div>
                     <div className='hidden w-3/12 truncate text-right sm:block'>Last Updated</div>
                 </div>
 
-                <div className='flex h-10 items-center justify-center gap-1 border-b border-gray-100 px-8 text-sm text-gray-400'>
-                    You have no todo lists -{' '}
-                    <button className='text-indigo-600 hover:underline' onClick={() => setOpen(true)}>
-                        Create one
-                    </button>
-                </div>
-
-                <TodoListItem
-                    id='todo'
-                    color='bg-indigo-600'
-                    title='This is a list title'
-                    lastEdit='February 22, 2023'
-                />
-                <TodoListItem
-                    id='todo'
-                    color='bg-indigo-600'
-                    title='This is a list title'
-                    lastEdit='February 22, 2023'
-                />
-                <TodoListItem
-                    id='todo'
-                    color='bg-indigo-600'
-                    title='This is a list title'
-                    lastEdit='February 22, 2023'
-                />
+                {lists.loading && (
+                    <div className='flex h-10 items-center justify-center gap-1 border-b border-gray-100 px-8 text-sm text-gray-400'>
+                        Loading your todo lists...
+                    </div>
+                )}
+                {!lists.loading && lists.value.length === 0 && (
+                    <div className='flex h-10 items-center justify-center gap-1 border-b border-gray-100 px-8 text-sm text-gray-400'>
+                        You have no todo lists -{' '}
+                        <button className='text-indigo-600 hover:underline' onClick={() => setOpen(true)}>
+                            Create one
+                        </button>
+                    </div>
+                )}
+                {!lists.loading &&
+                    lists.value.map(list => (
+                        <TodoListItem
+                            key={list.id}
+                            id={list.id}
+                            color={list.color}
+                            title={list.title}
+                            lastEdit={list.editedAt.toDate().toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            })}
+                        />
+                    ))}
             </main>
         </PageWrapper>
     )
@@ -200,7 +213,7 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
                     </div>
                 </div>
 
-                <div className='mt-6 flex flex-row-reverse gap-2'>
+                <div className='mt-10 flex flex-row-reverse gap-2'>
                     <button
                         disabled={title === '' || tag === '' || auth.currentUser === null || creating}
                         className='flex items-center justify-center rounded-lg bg-indigo-600 py-1.5 px-4 text-white hover:bg-indigo-700 disabled:bg-gray-400'
@@ -250,13 +263,23 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
 }
 
 interface RecentListProps {
+    id: string
     color: string
     title: string
 }
 
-const RecentList: React.FC<RecentListProps> = ({ color, title }) => {
+const RecentList: React.FC<RecentListProps> = ({ id, color, title }) => {
+    const navigate = useNavigate()
+
     return (
-        <a className='flex w-48 rounded-lg border border-gray-200' href='#'>
+        <a
+            href={'/list/' + id}
+            onClick={event => {
+                event.preventDefault()
+                navigate('/list/' + id)
+            }}
+            className='flex w-48 rounded-lg border border-gray-200'
+        >
             <div className={'w-4 rounded-l-lg ' + color} />
             <div className='w-full overflow-hidden py-2 px-4'>
                 <p className='truncate'>{title}</p>
@@ -273,8 +296,17 @@ interface TodoListItemProps {
 }
 
 const TodoListItem: React.FC<TodoListItemProps> = ({ id, color, title, lastEdit }) => {
+    const navigate = useNavigate()
+
     return (
-        <a href={'#/' + id} className='flex h-10 items-center border-b border-gray-100 px-8 text-sm'>
+        <a
+            href={'/list/' + id}
+            onClick={event => {
+                event.preventDefault()
+                navigate('/list/' + id)
+            }}
+            className='flex h-10 items-center border-b border-gray-100 px-8 text-sm'
+        >
             <div className='flex w-full items-center gap-3 truncate pr-4 sm:w-8/12'>
                 <div className={'h-2.5 w-2.5 rounded-full ' + color} />
                 {title}
