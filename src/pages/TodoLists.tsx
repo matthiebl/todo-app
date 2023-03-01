@@ -5,7 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { DocumentData } from 'firebase/firestore'
 import { auth } from '../api/firebase'
 import { createList } from '../api'
-import { PageWrapper } from '../components'
+import { CloseButton, Modal, PageWrapper, Pill } from '../components'
 
 interface TodoListsPageProps {
     lists: { loading: boolean; value: DocumentData[] }
@@ -110,155 +110,101 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
     const onChangeTag = (value: string) => setTag(value)
 
     return (
-        <div
-            aria-hidden={!open}
-            className='absolute top-0 left-0 z-40 flex h-screen w-screen items-center justify-center backdrop-blur-[2px] aria-hidden:hidden'
-            onClick={event => {
-                event.preventDefault()
-                event.stopPropagation()
-                setOpen(false)
-            }}
-        >
-            <div
-                className='z-50 h-full w-full bg-white px-8 py-6 sm:h-fit sm:max-w-xl sm:rounded-lg sm:border sm:border-gray-200 sm:shadow-lg'
-                onClick={event => event.stopPropagation()}
-            >
-                <div className='flex w-full justify-between'>
-                    <h2 className='truncate text-xl font-semibold'>Create a new todo list</h2>
-                    <button
-                        className='rounded-full p-0.5 text-gray-600 hover:text-gray-800'
-                        onClick={() => setOpen(false)}
-                    >
+        <Modal open={open} controller={setOpen}>
+            <div className='flex w-full justify-between'>
+                <h2 className='truncate text-2xl font-semibold'>Create a new todo list</h2>
+                <CloseButton onClick={() => setOpen(false)} />
+            </div>
+
+            <div className='mt-4'>
+                <label htmlFor='new-list-todo' className='text-sm font-semibold text-gray-800'>
+                    Title
+                </label>
+                <input
+                    id='new-list-todo'
+                    name='title'
+                    type='text'
+                    value={title}
+                    onChange={event => setTitle(event.target.value)}
+                    required
+                    className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500'
+                    placeholder={"Setup for Mark's Party"}
+                />
+            </div>
+
+            <div className='mt-4'>
+                <p className='mb-1 text-sm font-semibold text-gray-800'>Colour</p>
+                <div className='flex flex-wrap gap-2'>
+                    <Pill text='Red' colour='red' selected={tag == 'red'} onClick={() => onChangeTag('red')} />
+                    <Pill
+                        text='Orange'
+                        colour='orange'
+                        selected={tag == 'orange'}
+                        onClick={() => onChangeTag('orange')}
+                    />
+                    <Pill
+                        text='Yellow'
+                        colour='yellow'
+                        selected={tag == 'yellow'}
+                        onClick={() => onChangeTag('yellow')}
+                    />
+                    <Pill text='Green' colour='green' selected={tag == 'green'} onClick={() => onChangeTag('green')} />
+                    <Pill text='Blue' colour='blue' selected={tag == 'blue'} onClick={() => onChangeTag('blue')} />
+                    <Pill
+                        text='Purple'
+                        colour='purple'
+                        selected={tag == 'purple'}
+                        onClick={() => onChangeTag('purple')}
+                    />
+                    <Pill text='Pink' colour='pink' selected={tag == 'pink'} onClick={() => onChangeTag('pink')} />
+                </div>
+            </div>
+
+            <div className='mt-10 flex flex-row-reverse gap-2'>
+                <button
+                    disabled={title === '' || tag === '' || auth.currentUser === null || creating}
+                    className='flex items-center justify-center rounded-lg bg-indigo-600 py-1.5 px-4 text-white hover:bg-indigo-700 disabled:bg-gray-400'
+                    onClick={() => {
+                        if (title === '' || tag === '' || auth.currentUser === null) return
+                        setCreating(true)
+                        createList(auth.currentUser.uid, title, tag, ref => {
+                            setCreating(false)
+                            navigate(`/todo/${ref.id}`)
+                        })
+                    }}
+                >
+                    {creating && (
                         <svg
+                            className='-ml-0.5 mr-2 h-5 w-5 animate-spin text-white'
                             xmlns='http://www.w3.org/2000/svg'
                             fill='none'
                             viewBox='0 0 24 24'
-                            strokeWidth={1.5}
-                            stroke='currentColor'
-                            className='h-6 w-6'
                         >
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M6 18L18 6M6 6l12 12' />
+                            <circle
+                                className='opacity-25'
+                                cx='12'
+                                cy='12'
+                                r='10'
+                                stroke='currentColor'
+                                strokeWidth='4'
+                            ></circle>
+                            <path
+                                className='opacity-75'
+                                fill='currentColor'
+                                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                            ></path>
                         </svg>
-                    </button>
-                </div>
-
-                <div className='mt-4'>
-                    <label htmlFor='new-list-todo' className='text-sm font-semibold text-gray-800'>
-                        Title
-                    </label>
-                    <input
-                        id='new-list-todo'
-                        name='title'
-                        type='text'
-                        value={title}
-                        onChange={event => setTitle(event.target.value)}
-                        required
-                        className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500'
-                        placeholder={"Setup for Mark's Party"}
-                    />
-                </div>
-
-                <div className='mt-4'>
-                    <p className='mb-1 text-sm font-semibold text-gray-800'>Colour</p>
-                    <div className='flex flex-wrap gap-2 text-xs text-white'>
-                        <button
-                            aria-selected={tag === 'bg-red-600'}
-                            onClick={() => onChangeTag('bg-red-600')}
-                            className='rounded-full bg-red-600 py-0.5 px-2 outline-offset-2 outline-red-600 aria-selected:outline aria-selected:outline-1'
-                        >
-                            Red
-                        </button>
-                        <button
-                            aria-selected={tag === 'bg-orange-500'}
-                            onClick={() => onChangeTag('bg-orange-500')}
-                            className='rounded-full bg-orange-500 py-0.5 px-2 outline-offset-2 outline-orange-500 aria-selected:outline aria-selected:outline-1'
-                        >
-                            Orange
-                        </button>
-                        <button
-                            aria-selected={tag === 'bg-yellow-500'}
-                            onClick={() => onChangeTag('bg-yellow-500')}
-                            className='rounded-full bg-yellow-500 py-0.5 px-2 outline-offset-2 outline-yellow-500 aria-selected:outline aria-selected:outline-1'
-                        >
-                            Yellow
-                        </button>
-                        <button
-                            aria-selected={tag === 'bg-lime-500'}
-                            onClick={() => onChangeTag('bg-lime-500')}
-                            className='rounded-full bg-lime-500 py-0.5 px-2 outline-offset-2 outline-lime-500 aria-selected:outline aria-selected:outline-1'
-                        >
-                            Green
-                        </button>
-                        <button
-                            aria-selected={tag === 'bg-sky-500'}
-                            onClick={() => onChangeTag('bg-sky-500')}
-                            className='rounded-full bg-sky-500 py-0.5 px-2 outline-offset-2 outline-sky-500 aria-selected:outline aria-selected:outline-1'
-                        >
-                            Blue
-                        </button>
-                        <button
-                            aria-selected={tag === 'bg-purple-500'}
-                            onClick={() => onChangeTag('bg-purple-500')}
-                            className='rounded-full bg-purple-500 py-0.5 px-2 outline-offset-2 outline-purple-500 aria-selected:outline aria-selected:outline-1'
-                        >
-                            Purple
-                        </button>
-                        <button
-                            aria-selected={tag === 'bg-pink-500'}
-                            onClick={() => onChangeTag('bg-pink-500')}
-                            className='rounded-full bg-pink-500 py-0.5 px-2 outline-offset-2 outline-pink-500 aria-selected:outline aria-selected:outline-1'
-                        >
-                            Pink
-                        </button>
-                    </div>
-                </div>
-
-                <div className='mt-10 flex flex-row-reverse gap-2'>
-                    <button
-                        disabled={title === '' || tag === '' || auth.currentUser === null || creating}
-                        className='flex items-center justify-center rounded-lg bg-indigo-600 py-1.5 px-4 text-white hover:bg-indigo-700 disabled:bg-gray-400'
-                        onClick={() => {
-                            if (title === '' || tag === '' || auth.currentUser === null) return
-                            setCreating(true)
-                            createList(auth.currentUser.uid, title, tag, ref => {
-                                setCreating(false)
-                                navigate(`/todo/${ref.id}`)
-                            })
-                        }}
-                    >
-                        {creating && (
-                            <svg
-                                className='-ml-0.5 mr-2 h-5 w-5 animate-spin text-white'
-                                xmlns='http://www.w3.org/2000/svg'
-                                fill='none'
-                                viewBox='0 0 24 24'
-                            >
-                                <circle
-                                    className='opacity-25'
-                                    cx='12'
-                                    cy='12'
-                                    r='10'
-                                    stroke='currentColor'
-                                    strokeWidth='4'
-                                ></circle>
-                                <path
-                                    className='opacity-75'
-                                    fill='currentColor'
-                                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                                ></path>
-                            </svg>
-                        )}
-                        Create
-                    </button>
-                    <button
-                        className='ourline:gray-400 rounded-lg py-1.5 px-4 text-gray-600 outline outline-1 -outline-offset-1 hover:text-gray-500'
-                        onClick={() => setOpen(false)}
-                    >
-                        Cancel
-                    </button>
-                </div>
+                    )}
+                    Create
+                </button>
+                <button
+                    className='ourline:gray-400 rounded-lg py-1.5 px-4 text-gray-600 outline outline-1 -outline-offset-1 hover:text-gray-500'
+                    onClick={() => setOpen(false)}
+                >
+                    Cancel
+                </button>
             </div>
-        </div>
+        </Modal>
     )
 }
 
