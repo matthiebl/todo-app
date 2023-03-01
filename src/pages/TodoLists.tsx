@@ -224,11 +224,12 @@ const RecentList: React.FC<RecentListProps> = ({ id, color, title }) => {
                 event.preventDefault()
                 navigate('/list/' + id)
             }}
-            className='flex w-48 rounded-lg border border-gray-200'
+            className='flex w-48 min-w-[192px] rounded-lg border border-gray-200'
         >
             <div className={'w-4 rounded-l-lg ' + color} />
             <div className='w-full overflow-hidden py-2 px-4'>
                 <p className='truncate'>{title}</p>
+                <p className='truncate text-gray-400'>5 items left</p>
             </div>
         </a>
     )
@@ -261,4 +262,14 @@ const TodoListItem: React.FC<TodoListItemProps> = ({ id, color, title, lastEdit 
             <div className='hidden w-1/12 truncate text-right text-indigo-600 sm:block'>Edit</div>
         </a>
     )
+}
+
+const colourMap: Record<string, string> = {
+    red: 'bg-red-600',
+    orange: 'bg-orange-500',
+    yellow: 'bg-yellow-500',
+    green: 'bg-lime-500',
+    blue: 'bg-sky-500',
+    purple: 'bg-purple-500',
+    pink: 'bg-pink-500',
 }
