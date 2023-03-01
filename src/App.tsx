@@ -7,6 +7,7 @@ import { auth } from './api/firebase'
 import { getLists } from './api'
 
 import { LoginPage, TodoListsPage } from './pages'
+import { TodoListPage } from './pages/TodoList'
 
 const App = () => {
     const [lists, setLists] = React.useState<{ loading: boolean; value: DocumentData[] }>({ loading: true, value: [] })
@@ -25,6 +26,7 @@ const App = () => {
         <BrowserRouter>
             <Routes>
                 <Route path='/' element={<TodoListsPage lists={lists} />} />
+                <Route path='/list/:id' element={<TodoListPage />} />
                 <Route path='/login' element={<LoginPage />} />
                 <Route path='/register' element={<LoginPage register />} />
             </Routes>
