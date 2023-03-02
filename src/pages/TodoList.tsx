@@ -5,7 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../api/firebase'
 import { getList } from '../api'
 
-import { PageWrapper } from '../components'
+import { PageWrapper, PrimaryButton } from '../components'
 import { DocumentData } from 'firebase/firestore'
 
 interface TodoListPageProps {}
@@ -15,6 +15,10 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
 
     const [list, setList] = React.useState<{ loading: boolean; value: DocumentData }>({ loading: true, value: {} })
 
+    const [items, setItems] = React.useState<Item[]>([])
+    const [selected, setSelected] = React.useState<boolean>(false)
+    const [saved, setSaved] = React.useState<boolean>(true)
+
     React.useEffect(() => {
         onAuthStateChanged(auth, user => {
             if (user && params.id) {
@@ -23,19 +27,131 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
                 })
             }
         })
-    })
+    }, [])
+
+    const updateChecked = (id: number, checked: boolean) => {
+        setSaved(false)
+        setItems(items.map((it, i) => (i == id ? { ...it, checked } : { ...it })))
+    }
+
+    const updateText = (id: number, text: string) => {
+        setSaved(false)
+        setItems(items.map((it, i) => (i == id ? { ...it, text } : { ...it })))
+    }
+
+    const onClickNew = () => {
+        setSaved(false)
+        setItems([...items, { checked: false, text: 'New item...' }])
+    }
+
+    const onClickSave = () => {
+        setSaved(true)
+    }
+
+    const onClickDelete = (id: number) => {
+        setSaved(false)
+        setItems(items.filter((it, i) => i != id))
+    }
 
     return (
         <PageWrapper>
-            <main className='h-full w-full max-w-3xl overflow-y-auto'>
-                <div className='py-4 px-8'>
-                    <h1 className='truncate text-2xl font-semibold'>
-                        {list.loading ? 'Loading...' : list.value.title}
-                    </h1>
+            <main className='h-full w-full max-w-3xl'>
+                <div className='sticky top-0 flex flex-col gap-2 bg-white px-8 pb-2 pt-4'>
+                    <div className='flex items-center justify-between'>
+                        <h1 className='truncate text-2xl font-semibold'>{list.loading ? '...' : list.value.title}</h1>
+                        <PrimaryButton onClick={onClickNew}>Add Item</PrimaryButton>
+                    </div>
+                    <div className='flex items-center text-sm'>
+                        <button
+                            disabled={saved}
+                            onClick={() => onClickSave()}
+                            className='rounded-md bg-gray-100 py-0.5 px-1.5 text-gray-700 duration-75 disabled:-ml-1.5 disabled:bg-white disabled:text-gray-400'
+                        >
+                            {saved ? 'Saved' : 'Unsaved changes'}
+                        </button>
+                    </div>
                 </div>
 
-                <div className='border-t border-gray-200' />
+                <div className='sticky top-[68px] border-t border-gray-200' />
+
+                <div className='py-4 px-8'>
+                    {items.map((item, id) => (
+                        <TodoItem
+                            key={id}
+                            id={id}
+                            checked={item.checked}
+                            onCheck={ev => updateChecked(id, ev.target.checked)}
+                            text={item.text}
+                            onUpdate={ev => updateText(id, ev.target.value)}
+                            onDelete={onClickDelete}
+                        />
+                    ))}
+                </div>
             </main>
         </PageWrapper>
+    )
+}
+
+type Item = {
+    checked: boolean
+    text: string
+}
+
+interface TodoItemProps {
+    id: number
+    checked: boolean
+    onCheck: React.ChangeEventHandler<HTMLInputElement>
+    text: string
+    onUpdate: React.ChangeEventHandler<HTMLInputElement>
+    onDelete: (id: number) => any
+}
+
+const TodoItem: React.FC<TodoItemProps> = ({ id, checked, onCheck, text, onUpdate, onDelete }) => {
+    return (
+        <div className='group flex h-7 items-center py-1'>
+            <input
+                id={id.toString()}
+                type='checkbox'
+                checked={checked}
+                onChange={onCheck}
+                className='peer h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-1 focus:ring-indigo-500 disabled:pointer-events-none disabled:border-gray-400 disabled:bg-gray-400 disabled:text-gray-400'
+            />
+            <input
+                type='text'
+                value={text}
+                onChange={onUpdate}
+                className='ml-2 flex-grow border-0 p-0 text-sm text-gray-900 focus:outline-0 focus:ring-0 peer-checked:text-gray-500 peer-checked:line-through'
+            />
+            <button onClick={() => onDelete(id)}>
+                <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    strokeWidth={1.5}
+                    stroke='currentColor'
+                    className='hidden h-5 w-5 text-gray-600 hover:cursor-pointer hover:text-gray-800 group-hover:block'
+                >
+                    <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        d='M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'
+                    />
+                </svg>
+            </button>
+            <svg
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={1.5}
+                stroke='currentColor'
+                className='hidden h-5 w-5 text-gray-600 hover:cursor-pointer hover:text-gray-800 group-hover:block'
+            >
+                <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9'
+                />
+            </svg>
+        </div>
     )
 }
