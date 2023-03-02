@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../api/firebase'
-import { getList } from '../api'
+import { getList, updateList } from '../api'
 
 import { PageWrapper, PrimaryButton } from '../components'
 import { DocumentData } from 'firebase/firestore'
@@ -16,41 +16,58 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
     const [list, setList] = React.useState<{ loading: boolean; value: DocumentData }>({ loading: true, value: {} })
 
     const [items, setItems] = React.useState<Item[]>([])
-    const [selected, setSelected] = React.useState<boolean>(false)
     const [saved, setSaved] = React.useState<boolean>(true)
+
+    const [timeoutId, setTimeoutId] = React.useState<NodeJS.Timeout>()
 
     React.useEffect(() => {
         onAuthStateChanged(auth, user => {
             if (user && params.id) {
                 getList(params.id, list => {
                     setList({ loading: false, value: list })
+                    setItems(list.items)
                 })
             }
         })
     }, [])
 
-    const updateChecked = (id: number, checked: boolean) => {
+    const saveRequired = (newItems: Item[]) => {
         setSaved(false)
-        setItems(items.map((it, i) => (i == id ? { ...it, checked } : { ...it })))
+        if (timeoutId) {
+            clearTimeout(timeoutId)
+        }
+        const tid = setTimeout(() => {
+            console.log('Sould auto save now')
+            if (params.id) {
+                updateList(params.id, newItems)
+                setSaved(true)
+            }
+        }, 30000)
+        setTimeoutId(tid)
+    }
+
+    const updateChecked = (id: number, checked: boolean) => {
+        const newItems = items.map((it, i) => (i == id ? { ...it, checked } : { ...it }))
+        saveRequired(newItems)
+        setItems(newItems)
     }
 
     const updateText = (id: number, text: string) => {
-        setSaved(false)
-        setItems(items.map((it, i) => (i == id ? { ...it, text } : { ...it })))
+        const newItems = items.map((it, i) => (i == id ? { ...it, text } : { ...it }))
+        saveRequired(newItems)
+        setItems(newItems)
     }
 
     const onClickNew = () => {
-        setSaved(false)
-        setItems([...items, { checked: false, text: 'New item...' }])
-    }
-
-    const onClickSave = () => {
-        setSaved(true)
+        const newItems = [...items, { checked: false, text: 'New item...' }]
+        saveRequired(newItems)
+        setItems(newItems)
     }
 
     const onClickDelete = (id: number) => {
-        setSaved(false)
-        setItems(items.filter((it, i) => i != id))
+        const newItems = items.filter((it, i) => i != id)
+        saveRequired(newItems)
+        setItems(newItems)
     }
 
     return (
@@ -62,13 +79,9 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
                         <PrimaryButton onClick={onClickNew}>Add Item</PrimaryButton>
                     </div>
                     <div className='flex items-center text-sm'>
-                        <button
-                            disabled={saved}
-                            onClick={() => onClickSave()}
-                            className='rounded-md bg-gray-100 py-0.5 px-1.5 text-gray-700 duration-75 disabled:-ml-1.5 disabled:bg-white disabled:text-gray-400'
-                        >
+                        <p data-saved={saved} className='rounded-md text-gray-600 data-[saved]:text-gray-400'>
                             {saved ? 'Saved' : 'Unsaved changes'}
-                        </button>
+                        </p>
                     </div>
                 </div>
 
@@ -92,7 +105,7 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
     )
 }
 
-type Item = {
+export type Item = {
     checked: boolean
     text: string
 }
@@ -144,7 +157,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ id, checked, onCheck, text, onUpdat
                 viewBox='0 0 24 24'
                 strokeWidth={1.5}
                 stroke='currentColor'
-                className='hidden h-5 w-5 text-gray-600 hover:cursor-pointer hover:text-gray-800 group-hover:block'
+                className='ml-1 hidden h-5 w-5 text-gray-600 hover:cursor-pointer hover:text-gray-800 group-hover:block'
             >
                 <path
                     strokeLinecap='round'

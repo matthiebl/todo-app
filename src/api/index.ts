@@ -9,8 +9,10 @@ import {
     orderBy,
     query,
     serverTimestamp,
+    updateDoc,
     where,
 } from 'firebase/firestore'
+import { Item } from '../pages/TodoList'
 import { database } from './firebase'
 
 export const createList = (
@@ -39,6 +41,12 @@ export const createList = (
 export const getList = (id: string, callback: (list: DocumentData) => any) => {
     getDoc(doc(database, 'lists', id)).then(data => {
         if (data.exists()) callback(data.data())
+    })
+}
+
+export const updateList = (id: string, items: Item[]) => {
+    updateDoc(doc(database, 'lists', id), {
+        items,
     })
 }
 
