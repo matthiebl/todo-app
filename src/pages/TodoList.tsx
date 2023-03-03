@@ -85,7 +85,7 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
                     </div>
                 </div>
 
-                <div className='sticky top-[68px] border-t border-gray-200' />
+                <div className='sticky top-[88px] border-t border-gray-200' />
 
                 <div className='py-4 px-8'>
                     {items.map((item, id) => (
