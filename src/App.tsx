@@ -25,7 +25,7 @@ const App = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path='/' element={<TodoListsPage lists={lists} />} />
+                <Route path='/' element={<TodoListsPage lists={lists} setLists={setLists} />} />
                 <Route path='/list/:id' element={<TodoListPage />} />
                 <Route path='/login' element={<LoginPage />} />
                 <Route path='/register' element={<LoginPage register />} />

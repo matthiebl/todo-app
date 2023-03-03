@@ -37,12 +37,11 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
             clearTimeout(timeoutId)
         }
         const tid = setTimeout(() => {
-            console.log('Sould auto save now')
             if (params.id) {
                 updateList(params.id, newItems)
                 setSaved(true)
             }
-        }, 30000)
+        }, 5000)
         setTimeoutId(tid)
     }
 
@@ -73,19 +72,19 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
     return (
         <PageWrapper>
             <main className='h-full w-full max-w-3xl'>
-                <div className='sticky top-0 flex flex-col gap-2 bg-white px-8 pb-2 pt-4'>
-                    <div className='flex items-center justify-between'>
-                        <h1 className='truncate text-2xl font-semibold'>{list.loading ? '...' : list.value.title}</h1>
-                        <PrimaryButton onClick={onClickNew}>Add Item</PrimaryButton>
-                    </div>
+                <div className='sticky top-0 flex flex-col bg-white p-4 px-8'>
                     <div className='flex items-center text-sm'>
                         <p data-saved={saved} className='rounded-md text-gray-600 data-[saved]:text-gray-400'>
                             {saved ? 'Saved' : 'Unsaved changes'}
                         </p>
                     </div>
+                    <div className='flex items-center justify-between'>
+                        <h1 className='truncate text-2xl font-semibold'>{list.loading ? '...' : list.value.title}</h1>
+                        <PrimaryButton onClick={onClickNew}>Add Item</PrimaryButton>
+                    </div>
                 </div>
 
-                <div className='sticky top-[88px] border-t border-gray-200' />
+                <div className='sticky top-[84px] border-t border-gray-200' />
 
                 <div className='py-4 px-8'>
                     {items.map((item, id) => (

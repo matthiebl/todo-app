@@ -4,19 +4,25 @@ import { useNavigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
 import { DocumentData } from 'firebase/firestore'
 import { auth } from '../api/firebase'
-import { createList } from '../api'
-import { CloseButton, Modal, PageWrapper, Pill } from '../components'
+import { createList, getLists } from '../api'
+import { CloseButton, Modal, PageWrapper, Pill, PrimaryButton } from '../components'
+import { Item } from './TodoList'
 
 interface TodoListsPageProps {
     lists: { loading: boolean; value: DocumentData[] }
+    setLists: (lists: { loading: boolean; value: DocumentData[] }) => any
 }
 
-export const TodoListsPage: React.FC<TodoListsPageProps> = ({ lists }) => {
+export const TodoListsPage: React.FC<TodoListsPageProps> = ({ lists, setLists }) => {
     const navigate = useNavigate()
 
     React.useEffect(() => {
         onAuthStateChanged(auth, user => {
-            if (!user) {
+            if (user) {
+                getLists(auth.currentUser?.uid, lists => {
+                    setLists({ loading: false, value: lists })
+                })
+            } else {
                 navigate('/login')
             }
         })
@@ -31,12 +37,7 @@ export const TodoListsPage: React.FC<TodoListsPageProps> = ({ lists }) => {
                 <div className='flex items-center justify-between py-4 px-8'>
                     <h2 className='text-2xl'>Todo Lists</h2>
                     <div className='flex gap-2'>
-                        <button
-                            className='rounded-lg bg-indigo-600 py-1.5 px-4 text-white hover:bg-indigo-700'
-                            onClick={() => setOpen(true)}
-                        >
-                            Create
-                        </button>
+                        <PrimaryButton onClick={() => setOpen(true)}>New List</PrimaryButton>
                     </div>
                 </div>
 
@@ -53,6 +54,7 @@ export const TodoListsPage: React.FC<TodoListsPageProps> = ({ lists }) => {
                                     id={list.id}
                                     color={list.color}
                                     title={list.title}
+                                    incomplete={list.items.filter((it: Item) => !it.checked).length}
                                 />
                             ))}
                         </div>
@@ -163,7 +165,7 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
             <div className='mt-10 flex flex-row-reverse gap-2'>
                 <button
                     disabled={title === '' || tag === '' || auth.currentUser === null || creating}
-                    className='flex items-center justify-center rounded-lg bg-indigo-600 py-1.5 px-4 text-white hover:bg-indigo-700 disabled:bg-gray-400'
+                    className='flex items-center justify-center rounded-lg bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700 disabled:bg-gray-400'
                     onClick={() => {
                         if (title === '' || tag === '' || auth.currentUser === null) return
                         setCreating(true)
@@ -198,7 +200,7 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
                     Create
                 </button>
                 <button
-                    className='ourline:gray-400 rounded-lg py-1.5 px-4 text-gray-600 outline outline-1 -outline-offset-1 hover:text-gray-500'
+                    className='ourline:gray-400 rounded-lg py-1.5 px-3 text-sm text-gray-600 outline outline-1 -outline-offset-1 hover:text-gray-500'
                     onClick={() => setOpen(false)}
                 >
                     Cancel
@@ -212,9 +214,10 @@ interface RecentListProps {
     id: string
     color: string
     title: string
+    incomplete: number
 }
 
-const RecentList: React.FC<RecentListProps> = ({ id, color, title }) => {
+const RecentList: React.FC<RecentListProps> = ({ id, color, title, incomplete }) => {
     const navigate = useNavigate()
 
     return (
@@ -228,8 +231,12 @@ const RecentList: React.FC<RecentListProps> = ({ id, color, title }) => {
         >
             <div className={'w-4 rounded-l-lg ' + color} />
             <div className='w-full overflow-hidden py-2 px-4'>
-                <p className='truncate'>{title}</p>
-                <p className='truncate text-gray-400'>5 items left</p>
+                <p className='truncate text-sm' title={title}>
+                    {title}
+                </p>
+                <p className='truncate text-xs text-gray-400'>
+                    {incomplete ? `${incomplete} items left` : 'Completed'}
+                </p>
             </div>
         </a>
     )

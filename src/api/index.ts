@@ -47,6 +47,7 @@ export const getList = (id: string, callback: (list: DocumentData) => any) => {
 export const updateList = (id: string, items: Item[]) => {
     updateDoc(doc(database, 'lists', id), {
         items,
+        editedAt: serverTimestamp(),
     })
 }
 
