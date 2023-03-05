@@ -18,9 +18,9 @@ const Navbar = () => {
     const navigate = useNavigate()
 
     return (
-        <nav className='fixed bottom-0 left-0 h-16 w-full overflow-y-auto bg-indigo-600 sm:h-full sm:w-24'>
-            <div className='flex h-full w-full items-center justify-evenly sm:flex-col sm:justify-start sm:gap-3 sm:p-3'>
-                <button className='flex items-center justify-center rounded-full bg-indigo-700 p-2.5 text-white shadow hover:bg-indigo-800 sm:order-3 sm:h-16 sm:w-16 sm:flex-col sm:rounded-lg'>
+        <nav className='fixed bottom-0 left-0 h-20 w-full overflow-y-auto sm:h-full sm:w-24'>
+            <div className='flex h-full w-full items-center justify-center sm:flex-col sm:justify-start sm:gap-3 sm:p-3'>
+                {/* <button className='hidden items-center justify-center rounded-full bg-indigo-700 p-2.5 text-white shadow hover:bg-indigo-800 sm:order-3 sm:h-16 sm:w-16 sm:flex-col sm:rounded-lg'>
                     <svg
                         xmlns='http://www.w3.org/2000/svg'
                         fill='none'
@@ -37,10 +37,10 @@ const Navbar = () => {
                         <path strokeLinecap='round' strokeLinejoin='round' d='M6 6h.008v.008H6V6z' />
                     </svg>
                     <div className='hidden translate-y-1 text-xs sm:block'>Tags</div>
-                </button>
+                </button> */}
                 <button
                     onClick={() => navigate('/')}
-                    className='rounded-full bg-indigo-700 p-2.5 text-white shadow hover:bg-indigo-800 sm:order-1 sm:flex sm:h-16 sm:w-16 sm:flex-col sm:items-center sm:justify-center sm:rounded-lg'
+                    className='rounded-full bg-indigo-700 p-3 text-white shadow hover:bg-indigo-800 sm:p-4'
                 >
                     <svg
                         xmlns='http://www.w3.org/2000/svg'
@@ -64,9 +64,8 @@ const Navbar = () => {
                             />
                         )}
                     </svg>
-                    <div className='hidden translate-y-1 text-xs sm:block'>Lists</div>
                 </button>
-                <button className='rounded-full bg-indigo-700 p-2.5 text-white shadow hover:bg-indigo-800 sm:order-2 sm:flex sm:h-16 sm:w-16 sm:flex-col sm:items-center sm:justify-center sm:rounded-lg'>
+                {/* <button className='hidden rounded-full bg-indigo-700 p-2.5 text-white shadow hover:bg-indigo-800 sm:order-2 sm:h-16 sm:w-16 sm:flex-col sm:items-center sm:justify-center sm:rounded-lg'>
                     <svg
                         xmlns='http://www.w3.org/2000/svg'
                         fill='none'
@@ -82,7 +81,7 @@ const Navbar = () => {
                         />
                     </svg>
                     <div className='hidden translate-y-1 text-xs sm:block'>New</div>
-                </button>
+                </button> */}
             </div>
         </nav>
     )
