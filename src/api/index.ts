@@ -1,11 +1,13 @@
 import {
     addDoc,
     collection,
+    deleteDoc,
     doc,
     DocumentData,
     DocumentReference,
     getDoc,
     getDocs,
+    onSnapshot,
     orderBy,
     query,
     serverTimestamp,
@@ -39,7 +41,7 @@ export const createList = (
 }
 
 export const getList = (id: string, callback: (list: DocumentData) => any) => {
-    getDoc(doc(database, 'lists', id)).then(data => {
+    onSnapshot(doc(database, 'lists', id), data => {
         if (data.exists()) callback(data.data())
     })
 }
@@ -48,6 +50,12 @@ export const updateList = (id: string, items: Item[]) => {
     updateDoc(doc(database, 'lists', id), {
         items,
         editedAt: serverTimestamp(),
+    })
+}
+
+export const deleteList = (id: string, callback: () => any) => {
+    deleteDoc(doc(database, 'lists', id)).then(() => {
+        callback()
     })
 }
 

@@ -171,7 +171,7 @@ const NewListModal: React.FC<ModalProps> = ({ open, setOpen }) => {
                         setCreating(true)
                         createList(auth.currentUser.uid, title, tag, ref => {
                             setCreating(false)
-                            navigate(`/todo/${ref.id}`)
+                            navigate(`/list/${ref.id}`)
                         })
                     }}
                 >
