@@ -229,7 +229,7 @@ const RecentList: React.FC<RecentListProps> = ({ id, color, title, incomplete })
             }}
             className='flex w-48 min-w-[192px] rounded-lg border border-gray-200'
         >
-            <div className={'w-4 rounded-l-lg ' + color} />
+            <div className={'w-4 rounded-l-lg ' + colourMap[color]} />
             <div className='w-full overflow-hidden py-2 px-4'>
                 <p className='truncate text-sm' title={title}>
                     {title}
@@ -262,7 +262,7 @@ const TodoListItem: React.FC<TodoListItemProps> = ({ id, color, title, lastEdit 
             className='flex h-10 items-center border-b border-gray-100 px-8 text-sm'
         >
             <div className='flex w-full items-center gap-3 truncate pr-4 sm:w-8/12'>
-                <div className={'h-2.5 w-2.5 rounded-full ' + color} />
+                <div className={'h-2.5 w-2.5 rounded-full ' + colourMap[color]} />
                 {title}
             </div>
             <div className='hidden w-3/12 truncate text-right text-gray-400 sm:block'>{lastEdit}</div>
