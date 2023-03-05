@@ -36,7 +36,6 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
 
     React.useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            console.log(event.key, event.shiftKey)
             if (event.key === 'ArrowDown') moveCursorDown()
             else if (event.key === 'ArrowUp') moveCursorUp()
             else if (event.key === 'Enter' && !event.shiftKey && selected >= 0)
@@ -125,10 +124,6 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
     const moveCursorUp = () => {
         focusRow(selected - 1)
     }
-
-    React.useEffect(() => {
-        console.log('select', selected)
-    }, [selected])
 
     return (
         <PageWrapper>
