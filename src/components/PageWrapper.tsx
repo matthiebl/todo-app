@@ -18,7 +18,7 @@ const Navbar = () => {
     const navigate = useNavigate()
 
     return (
-        <nav className='fixed bottom-0 left-0 h-20 w-full overflow-y-auto sm:h-full sm:w-24'>
+        <nav className='z-40 fixed bottom-0 left-0 h-20 w-full overflow-y-auto sm:h-full sm:w-24'>
             <div className='flex h-full w-full items-center justify-center sm:flex-col sm:justify-start sm:gap-3 sm:p-3'>
                 {/* <button className='hidden items-center justify-center rounded-full bg-indigo-700 p-2.5 text-white shadow hover:bg-indigo-800 sm:order-3 sm:h-16 sm:w-16 sm:flex-col sm:rounded-lg'>
                     <svg
