@@ -129,7 +129,7 @@ export const TodoListPage: React.FC<TodoListPageProps> = ({}) => {
         <PageWrapper>
             <DeleteListModal open={open} setOpen={setOpen} />
             <main className='h-full w-full max-w-3xl'>
-                <div className='sticky top-0 flex flex-col bg-white py-4 px-8 pb-2'>
+                <div className='z-40 sticky top-0 flex flex-col bg-white py-4 px-8 pb-2'>
                     <div className='flex items-center text-sm'>
                         <p data-saved={saved} className='rounded-md text-gray-600 data-[saved]:text-gray-400'>
                             {saved ? 'Saved' : 'Saving changes...'}
